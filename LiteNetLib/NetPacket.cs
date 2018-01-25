@@ -26,12 +26,13 @@ namespace LiteNetLib
         DiscoveryResponse,      //18
         Merged,                 //19
         ShutdownOk,             //20     
-        ReliableSequenced       //21
+        ReliableSequenced,      //21
+        AckReliableSequenced    //22
     }
 
     internal sealed class NetPacket
     {
-        private const int LastProperty = 21;
+        private const int LastProperty = 22;
 
         //Header
         public PacketProperty Property
@@ -108,6 +109,7 @@ namespace LiteNetLib
                 case PacketProperty.AckReliable:
                 case PacketProperty.AckReliableOrdered:
                 case PacketProperty.ReliableSequenced:
+                case PacketProperty.AckReliableSequenced:
                     return NetConstants.SequencedHeaderSize;
                 default:
                     return NetConstants.HeaderSize;

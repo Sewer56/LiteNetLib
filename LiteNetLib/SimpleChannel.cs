@@ -21,19 +21,17 @@ namespace LiteNetLib
             }
         }
 
-        public bool SendNextPackets()
+        public void SendNextPackets()
         {
-            NetPacket packet;
             lock (_outgoingPackets)
             {
                 while (_outgoingPackets.Count > 0)
                 {
-                    packet = _outgoingPackets.Dequeue();
+                    NetPacket packet = _outgoingPackets.Dequeue();
                     _peer.SendRawData(packet);
                     _peer.Recycle(packet);
                 }
             }
-            return true;
         }
     }
 }
