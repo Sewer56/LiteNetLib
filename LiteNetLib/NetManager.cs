@@ -64,6 +64,7 @@ namespace LiteNetLib
         private readonly NetPeerCollection _peers;
         private readonly HashSet<NetEndPoint> _connectingPeers;
         private readonly int _maxConnections;
+        private List<NetPeer> _connectedPeerList;
 
         internal readonly NetPacketPool NetPacketPool;
 
@@ -174,7 +175,26 @@ namespace LiteNetLib
         {
             get { return _socket.LocalPort; }
         }
-
+        
+        public List<NetPeer> ConnectedPeerList
+        {
+            get
+            {
+                _connectedPeerList.Clear();
+                lock (_peers)
+                {
+                    for(int i = 0; i < _peers.Count; i++)
+                    {
+                        if ((_peers[i].ConnectionState & ConnectionState.Connected) != 0)
+                        {
+                            _connectedPeerList.Add(_peers[i]);
+                        }
+                    }
+                }
+                return _connectedPeerList;
+            }
+        }
+        
         public int PeersCount
         {
             get { return _peers.Count; }
@@ -202,11 +222,12 @@ namespace LiteNetLib
             _netEventsQueue = new Queue<NetEvent>();
             _netEventsPool = new Stack<NetEvent>();
             NetPacketPool = new NetPacketPool();
-            NatPunchModule = new NatPunchModule(this);
+            NatPunchModule = new NatPunchModule(_socket);
             Statistics = new NetStatistics();
             _peers = new NetPeerCollection(maxConnections);
             _connectingPeers = new HashSet<NetEndPoint>();
             _maxConnections = maxConnections;
+            _connectedPeerList = new List<NetPeer>();
         }
 
         internal void ConnectionLatencyUpdated(NetPeer fromPeer, int latency)
@@ -521,7 +542,7 @@ namespace LiteNetLib
                 {
                     NetUtils.DebugWrite(ConsoleColor.Cyan, "[NM] Peer connect reject.");
                 }
-                else
+                else if(_peers.Count < _maxConnections)
                 {
                     //response with id
                     var netPeer = new NetPeer(this, request.RemoteEndPoint, request.ConnectionId);
