@@ -1,34 +1,32 @@
-<?xml version="1.0"?>
-<package >
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>LiteNetLib</id>
-    <title>LiteNetLib</title>
-    <version>0.7.7</version>
-    <authors>Ruslan Pyrch</authors>
+    <id>LiteNetLib-custom</id>
+    <version>0.0.1</version>
+    <title>LiteNetLib-Custom</title>
+    <authors>Sewer56, Ruslan Pyrch</authors>
     <owners>RevenantX</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/RevenantX/LiteNetLib/blob/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/RevenantX/LiteNetLib</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Lite reliable UDP library for .NET, Mono, and .NET Core.</description>
+    <description>Personal use custom build of with address binding overload merged in, will be obsolete by 0.7.7.2</description>
     <copyright>Copyright 2017 Ruslan Pyrch</copyright>
     <tags>udp reliable-udp network</tags>
     <dependencies>
 	  <group targetFramework="net35">
 	  </group>
 	  <group targetFramework="netcoreapp1.1">
-        <dependency id="System.Net.NetworkInformation" version="4.3.0" />
-    </group>
+      </group>
 	  <group targetFramework="netstandard2.0">
         <dependency id="System.Net.NetworkInformation" version="4.3.0" />
-		    <dependency id="System.Net.NameResolution" version="4.3.0" />
-		    <dependency id="System.Threading.Thread" version="4.3.0" />
-    </group>
+		<dependency id="System.Net.NameResolution" version="4.3.0" />
+		<dependency id="System.Threading.Thread" version="4.3.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
 	<file src="HelpBuilder\Help\Documentation.chm" target="" />
 	<file src="LiteNetLib\bin\$configuration$\**" target="lib\net35"/>
-	<file src="LiteNetLibWin81\bin\$configuration$\**" target="lib\wpa81"/>
 	<file src="LiteNetLibNetCore\bin\$configuration$\netcoreapp1.1\**" target="lib\netcoreapp1.1"/>
 	<file src="LiteNetLibStandard\bin\$configuration$\netstandard2.0\**" target="lib\netstandard2.0"/>
   </files>

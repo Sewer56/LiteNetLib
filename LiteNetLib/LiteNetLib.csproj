@@ -64,5 +64,8 @@
     <Compile Include="Utils\NetDataWriter.cs" />
     <Compile Include="Utils\NetSerializer.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

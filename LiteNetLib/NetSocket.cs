@@ -81,6 +81,76 @@ namespace LiteNetLib
             }
         }
 
+        public bool Bind(IPAddress ipAddress, IPAddress ipAddressV6, int port, bool reuseAddress)
+        {
+            _udpSocketv4 = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _udpSocketv4.Blocking = true;
+            _udpSocketv4.ReceiveBufferSize = NetConstants.SocketBufferSize;
+            _udpSocketv4.SendBufferSize = NetConstants.SocketBufferSize;
+            _udpSocketv4.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, NetConstants.SocketTTL);
+            if (reuseAddress)
+                _udpSocketv4.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+#if !NETCORE
+            _udpSocketv4.DontFragment = true;
+#endif
+
+            try
+            {
+                _udpSocketv4.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+            }
+            catch (SocketException e)
+            {
+                NetUtils.DebugWriteError("Broadcast error: {0}", e.ToString());
+            }
+
+            if (!BindSocket(_udpSocketv4, new IPEndPoint(ipAddress, port)))
+            {
+                return false;
+            }
+            _port = ((IPEndPoint)_udpSocketv4.LocalEndPoint).Port;
+            _running = true;
+            _threadv4 = new Thread(ReceiveLogic);
+            _threadv4.Name = "SocketThreadv4(" + _port + ")";
+            _threadv4.IsBackground = true;
+            _threadv4.Start(_udpSocketv4);
+
+            //Check IPv6 support
+            if (!IPv6Support)
+                return true;
+
+            _udpSocketv6 = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+            _udpSocketv6.Blocking = true;
+            _udpSocketv6.ReceiveBufferSize = NetConstants.SocketBufferSize;
+            _udpSocketv6.SendBufferSize = NetConstants.SocketBufferSize;
+            if (reuseAddress)
+                _udpSocketv6.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+            //Use one port for two sockets
+            if (BindSocket(_udpSocketv6, new IPEndPoint(ipAddressV6, _port)))
+            {
+                try
+                {
+#if !ENABLE_IL2CPP
+                    _udpSocketv6.SetSocketOption(
+                        SocketOptionLevel.IPv6,
+                        SocketOptionName.AddMembership,
+                        new IPv6MulticastOption(MulticastAddressV6));
+#endif
+                }
+                catch (Exception)
+                {
+                    // Unity3d throws exception - ignored
+                }
+
+                _threadv6 = new Thread(ReceiveLogic);
+                _threadv6.Name = "SocketThreadv6(" + _port + ")";
+                _threadv6.IsBackground = true;
+                _threadv6.Start(_udpSocketv6);
+            }
+
+            return true;
+        }
+
         public bool Bind(int port, bool reuseAddress)
         {
             _udpSocketv4 = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
