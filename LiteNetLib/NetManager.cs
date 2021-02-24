@@ -291,6 +291,11 @@ namespace LiteNetLib
         public bool IsRunning { get { return _socket.IsRunning; } }
 
         /// <summary>
+        /// Returns true if the <see cref="NetManager"/> was started in manual mode
+        /// </summary>
+        public bool IsInManualMode { get { return _manualMode; } }
+
+        /// <summary>
         /// Local EndPoint (host and port)
         /// </summary>
         public int LocalPort { get { return _socket.LocalPort; } }
