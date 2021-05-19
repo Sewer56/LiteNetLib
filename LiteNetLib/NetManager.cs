@@ -148,6 +148,7 @@ namespace LiteNetLib
         private readonly List<IncomingData> _pingSimulationList = new List<IncomingData>();
         private readonly Random _randomGenerator = new Random();
         private const int MinLatencyThreshold = 5;
+        private bool _isProcessingPingSimulatedPackets;
 #endif
 
         private readonly NetSocket _socket;
@@ -725,9 +726,15 @@ namespace LiteNetLib
             if (!SimulateLatency)
                 return;
 
+            // Prevent recursion in Manual Mode where a data received handler may
+            // flush send and call receive again.
+            if (_isProcessingPingSimulatedPackets)
+                return;
+
             var time = DateTime.UtcNow;
             lock (_pingSimulationList)
             {
+                _isProcessingPingSimulatedPackets = true;
                 for (int i = 0; i < _pingSimulationList.Count; i++)
                 {
                     var incomingData = _pingSimulationList[i];
@@ -738,6 +745,8 @@ namespace LiteNetLib
                         i--;
                     }
                 }
+
+                _isProcessingPingSimulatedPackets = false;
             }
 #endif
         }
